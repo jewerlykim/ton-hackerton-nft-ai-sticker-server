@@ -147,10 +147,10 @@ async def batch_predict(
     # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "anime, pixar style, 8k, High Detail, 3D, (one girl:1.0), simple hair, no hair band, (eyebrows:1.0)"
+    base_positive_prompts = "(anime),(pixar style:2.0), 8k, High Detail, 3D, (one girl:2.0),(one person:2.0), simple hair, no hair band"
     base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair"
     prompts = [
-        ("in theme park, Wide smile, (smile with tooth:1.0), (white shirt:1.0), (black color hair:1.0), calm hair, smiling eyebrows, thick eyebrows", "bad quility"),
+        ("(sky:2.0),(Wide smile:2.0), (smile with tooth:1.0), (white shirt:1.0), (long straight hair:2.0),(untied hair:2.0),(black hair:2.0)", "(bad quility:2.0)"),
         # ("black color background, pouty mouth, white color shirt, gold color hair", "bad quility"),
         
     ]
@@ -165,8 +165,8 @@ async def batch_predict(
             'mask': open("assets/clonex_mask.png", "rb"),
             'invert_mask': False,
             'num_outputs': 1,
-            'num_inference_steps': 50,
-            'guidance_scale': 7.5,
+            'num_inference_steps': 100,
+            'guidance_scale': 6,
 
         }
 
@@ -207,11 +207,12 @@ async def batch_predict_test(
     # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "amazing detail, anime, pixar style, 8k, big eyes, High Detail, 3D"
-    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy"
+    base_positive_prompts = "(anime),(pixar style:2.0), 8k, High Detail, 3D, (one girl:2.0),(one person:2.0), simple hair, no hair band"
+    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair"
     prompts = [
-        # ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
-        ("black color background, sad eyes, sad mouth, wearing white color shirt, glod color hair", ""),
+        ("(sky:2.0),(Wide smile:2.0), (smile with tooth:1.0), (white shirt:1.0), (long straight hair:2.0),(untied hair:2.0),(black hair:2.0)", "(bad quility:2.0)"),
+        # ("black color background, pouty mouth, white color shirt, gold color hair", "bad quility"),
+        
     ]
 
     results = []
@@ -247,6 +248,8 @@ async def batch_predict_test(
                 f.write(response.content)
 
             # Return the output image as a response
+            results.append(outputs[0])
+            results.append(outputs[0])
             results.append(outputs[0])
         
     return results
