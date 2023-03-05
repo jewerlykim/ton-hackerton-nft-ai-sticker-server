@@ -12,8 +12,10 @@ class PredictBody(BaseModel):
 
 app = FastAPI()
 
-model = replicate.models.get("andreasjansson/stable-diffusion-inpainting")
-version = model.versions.get("e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180")
+# model = replicate.models.get("andreasjansson/stable-diffusion-inpainting")
+# version = model.versions.get("e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180")
+model = replicate.models.get("cjwbw/stable-diffusion-v2-inpainting")
+version = model.versions.get("f9bb0632bfdceb83196e85521b9b55895f8ff3d1d3b487fd1973210c0eb30bec")
 
 
 
@@ -126,3 +128,123 @@ async def test(
     print("test called with project_name: ", project_name)
 
     return {"message": "test"}
+
+
+@app.post("/batch_predict")
+async def batch_predict(
+    image: UploadFile = File(...),
+    project_name: str = Form(...)
+    ):
+    print("batch_predict called with project_name: ", project_name)
+
+    # 7가지 상황에 맞는 prompt 배열
+    # 기쁨: 노란색 배경과 밝은 눈, 넓게 웃는 입으로 캐릭터를 표현할 수 있습니다.
+    # 슬픔: 캐릭터를 푹신한 검은색 배경과 울고 있는 눈, 슬픈 표정으로 표현할 수 있습니다.
+    # 분노: 빨간색 배경과 찡그린 눈, 큰 입으로 분노한 표정을 표현할 수 있습니다.
+    # 놀람: 푹신한 하늘색 배경과 큰 눈, 입을 벌리고 놀라는 표정으로 캐릭터를 표현할 수 있습니다.
+    # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
+    # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
+    # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
+    base_positive_prompts = "amazing detail, anime, pixar style, 8k, big eyes, High Detail, 3D"
+    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy"
+    prompts = [
+        ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
+        # ("only black color background, sad eyes, sad mouth, a black color shirt, black color hair, ponytail hair", ""),
+    ]
+
+    results = []
+
+    for prompt, negative_prompt in prompts:
+        inputs = {
+            'prompt': prompt + ", " + base_positive_prompts,
+            'negative_prompt': negative_prompt + ", " + base_negative_prompts,
+            'image': io.BytesIO(image.file.read()),
+            'mask': open("assets/clonex_mask.png", "rb"),
+            'invert_mask': False,
+            'num_outputs': 1,
+            'num_inference_steps': 75,
+            'guidance_scale': 7.5,
+            'prompt_strength': 0.8,
+
+        }
+
+        outputs = version.predict(**inputs)
+        print(outputs)
+        if outputs:
+            os.makedirs("outputs", exist_ok=True)
+
+            # Get the latest file number in the output directory
+            existing_files = os.listdir('outputs')
+            latest_file_num = max([0] + [int(f.split('_')[1].split('.')[0]) for f in existing_files if f.startswith(project_name)])
+            next_file_num = latest_file_num + 1
+
+            # Save the output image to a file in the output directory
+            output_path = f'outputs/{project_name}_{next_file_num}.png'
+            response = requests.get(outputs[0])
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+
+            # Return the output image as a response
+            results.append(outputs[0])
+        
+    return results
+
+
+@app.post("/batch_predict_test")
+async def batch_predict_test(
+    image: UploadFile = File(...),
+    project_name: str = Form(...)
+    ):
+    print("batch_predict called with project_name: ", project_name)
+
+    # 7가지 상황에 맞는 prompt 배열
+    # 기쁨: 노란색 배경과 밝은 눈, 넓게 웃는 입으로 캐릭터를 표현할 수 있습니다.
+    # 슬픔: 캐릭터를 푹신한 검은색 배경과 울고 있는 눈, 슬픈 표정으로 표현할 수 있습니다.
+    # 분노: 빨간색 배경과 찡그린 눈, 큰 입으로 분노한 표정을 표현할 수 있습니다.
+    # 놀람: 푹신한 하늘색 배경과 큰 눈, 입을 벌리고 놀라는 표정으로 캐릭터를 표현할 수 있습니다.
+    # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
+    # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
+    # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
+    base_positive_prompts = "amazing detail, anime, pixar style, 8k, big eyes, High Detail, 3D"
+    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy"
+    prompts = [
+        ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
+        # ("only black color background, sad eyes, sad mouth, a black color shirt, black color hair, ponytail hair", ""),
+    ]
+
+    results = []
+
+    for prompt, negative_prompt in prompts:
+        inputs = {
+            'prompt': prompt + ", " + base_positive_prompts,
+            'negative_prompt': negative_prompt + ", " + base_negative_prompts,
+            'image': io.BytesIO(image.file.read()),
+            'mask': open("assets/clonex_mask.png", "rb"),
+            'invert_mask': False,
+            'num_outputs': 1,
+            'num_inference_steps': 75,
+            'guidance_scale': 7.5,
+            'prompt_strength': 0.8,
+
+        }
+
+        outputs = version.predict(**inputs)
+        print(outputs)
+        if outputs:
+            os.makedirs("outputs", exist_ok=True)
+
+            # Get the latest file number in the output directory
+            existing_files = os.listdir('outputs')
+            latest_file_num = max([0] + [int(f.split('_')[1].split('.')[0]) for f in existing_files if f.startswith(project_name)])
+            next_file_num = latest_file_num + 1
+
+            # Save the output image to a file in the output directory
+            output_path = f'outputs/{project_name}_{next_file_num}.png'
+            response = requests.get(outputs[0])
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+
+            # Return the output image as a response
+            results.append(outputs[0])
+        
+    return results
