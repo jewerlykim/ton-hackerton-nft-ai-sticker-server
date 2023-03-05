@@ -14,9 +14,10 @@ app = FastAPI()
 
 # model = replicate.models.get("andreasjansson/stable-diffusion-inpainting")
 # version = model.versions.get("e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180")
-model = replicate.models.get("cjwbw/stable-diffusion-v2-inpainting")
-version = model.versions.get("f9bb0632bfdceb83196e85521b9b55895f8ff3d1d3b487fd1973210c0eb30bec")
-
+# model = replicate.models.get("cjwbw/stable-diffusion-v2-inpainting")
+# version = model.versions.get("f9bb0632bfdceb83196e85521b9b55895f8ff3d1d3b487fd1973210c0eb30bec")
+model = replicate.models.get("stability-ai/stable-diffusion-inpainting")
+version = model.versions.get("c28b92a7ecd66eee4aefcd8a94eb9e7f6c3805d5f06038165407fb5cb355ba67")
 
 
 @app.get("/")
@@ -145,11 +146,12 @@ async def batch_predict(
     # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "amazing detail, anime, pixar style, 8k, big eyes, High Detail, 3D"
-    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy"
+    base_positive_prompts = "anime, pixar style, 8k, High Detail, 3D, (one girl:1.0), simple hair, no hair band, (eyebrows:1.0)"
+    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair"
     prompts = [
-        ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
-        # ("only black color background, sad eyes, sad mouth, a black color shirt, black color hair, ponytail hair", ""),
+        ("in theme park, Wide smile, (smile with tooth:1.0), (white shirt:1.0), (black color hair:1.0), calm hair, smiling eyebrows, thick eyebrows", "bad quility"),
+        # ("black color background, pouty mouth, white color shirt, gold color hair", "bad quility"),
+        
     ]
 
     results = []
@@ -162,9 +164,8 @@ async def batch_predict(
             'mask': open("assets/clonex_mask.png", "rb"),
             'invert_mask': False,
             'num_outputs': 1,
-            'num_inference_steps': 75,
+            'num_inference_steps': 50,
             'guidance_scale': 7.5,
-            'prompt_strength': 0.8,
 
         }
 
@@ -208,8 +209,8 @@ async def batch_predict_test(
     base_positive_prompts = "amazing detail, anime, pixar style, 8k, big eyes, High Detail, 3D"
     base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy"
     prompts = [
-        ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
-        # ("only black color background, sad eyes, sad mouth, a black color shirt, black color hair, ponytail hair", ""),
+        # ("yellow colored background, Wide smile, smile with tooth, lime color knitwear cloth, black color hair, neat ponytail-style hair, wearing a pearl necklace", ""),
+        ("black color background, sad eyes, sad mouth, wearing white color shirt, glod color hair", ""),
     ]
 
     results = []
@@ -222,7 +223,7 @@ async def batch_predict_test(
             'mask': open("assets/clonex_mask.png", "rb"),
             'invert_mask': False,
             'num_outputs': 1,
-            'num_inference_steps': 75,
+            'num_inference_steps': 100,
             'guidance_scale': 7.5,
             'prompt_strength': 0.8,
 
