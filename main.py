@@ -1,3 +1,4 @@
+import time
 from fastapi import FastAPI, File, UploadFile, Form
 import replicate
 from pydantic import BaseModel
@@ -249,3 +250,10 @@ async def batch_predict_test(
             results.append(outputs[0])
         
     return results
+
+# x 초를 key로 받아서 key 초 만큼 기다렸다가 응답해줌
+@app.post("/timelock")
+async def timelock(x: int):
+    print("timelock called with x: ", x)
+    time.sleep(x)
+    return {"result": "success"}
