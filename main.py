@@ -138,12 +138,12 @@ async def batch_predict(
     project_name: str = Form(...),
     emotion_type: str = Form(...)
     ):
-    print("batch_predict called with project_name: ", project_name)
+    print("batch_predict called with project_name: ", project_name, "emotion_type: ", emotion_type)
 
     emotions = {
         'joy': ("(single color background:2.0),(Wide smile:2.0), (smile with tooth:1.0), (feminine clothes:2.0), (long straight hair:2.0),(untied hair:2.0),(black hair:2.0), (feminine hair:2.0)", "(bad quility:2.0)"),
         'sadness': ("(single color background:1.5),(pursed Lips:2.0),(sad lips:2.0),(the corners of one's mouth dropping:2.0), (dress:2.0),(girl cloth:2.0), (long straight hair:1.0),(untied hair:1.0),(black hair:1.0), (feminine hair:1.0)", "(bad quility:1.0)"),
-        'surprise': ("(single color background:1.5),(pursed Lips:2.0),(surprised lips:2.0), surprised, (surprised mouth:2.0), (dress:2.0),(girl cloth:2.0), (long straight hair:1.0),(untied hair:1.0),(black hair:1.0), (feminine hair:1.0)", "(bad quility:1.0)")
+        'surprise': ("(single color background:1.5),(surprised lips:1.0),(open lips:1.0), surprised, (surprised mouth:1.0), (dress:2.0),(girl cloth:2.0), (long straight hair:1.0),(untied hair:1.0),(black hair:1.0), (feminine hair:1.0)", "(bad quility:1.0)")
     }
 
     # 7가지 상황에 맞는 prompt 배열
@@ -154,7 +154,7 @@ async def batch_predict(
     # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "(pixar style:1.0), 8k, High Detail, 3D, (one girl:2.0),(one person:2.0), simple hair, no hair band, (girl:1.0)"
+    base_positive_prompts = "(pixar style:1.0), 8k, High Detail, 3D, (1girl:2.0),(1person:2.0), simple hair, no hair band, (girl:1.0), body"
     base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair, people"
 
     results = []
@@ -165,12 +165,18 @@ async def batch_predict(
     positive_prompt = emotions[emotion_type][0]
     negative_prompt = emotions[emotion_type][1]
 
+    prompt = positive_prompt + ", " + base_positive_prompts
+    negative_prompt_input = negative_prompt + ", " + base_negative_prompts
+
+    print("prompt: ", prompt)
+    print("negative_prompt: ", negative_prompt_input)
+
 
 
     # for prompt, negative_prompt in prompts:
     inputs = {
-        'prompt': positive_prompt + ", " + base_positive_prompts,
-        'negative_prompt': negative_prompt + ", " + base_negative_prompts,
+        'prompt': prompt,
+        'negative_prompt': negative_prompt_input,
         'image': io.BytesIO(image.file.read()),
         'mask': open("assets/clonex_mask.png", "rb"),
         'invert_mask': False,
