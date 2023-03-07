@@ -154,7 +154,7 @@ async def batch_predict(
     # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "(pixar style:1.0), 8k, High Detail, 3D, (1girl:2.0),(1person:2.0), simple hair, no hair band, (girl:1.0), body"
+    base_positive_prompts = "(body:2.0), (pixar style:1.0), 8k, High Detail, 3D, (1girl:2.0),(1person:2.0), simple hair, no hair band, (girl:1.0)"
     base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair, people"
 
     results = []
@@ -209,65 +209,7 @@ async def batch_predict(
     return results
 
 
-@app.post("/batch_predict_test")
-async def batch_predict_test(
-    image: UploadFile = File(...),
-    project_name: str = Form(...)
-    ):
-    print("batch_predict called with project_name: ", project_name)
 
-    # 7가지 상황에 맞는 prompt 배열
-    # 기쁨: 노란색 배경과 밝은 눈, 넓게 웃는 입으로 캐릭터를 표현할 수 있습니다.
-    # 슬픔: 캐릭터를 푹신한 검은색 배경과 울고 있는 눈, 슬픈 표정으로 표현할 수 있습니다.
-    # 분노: 빨간색 배경과 찡그린 눈, 큰 입으로 분노한 표정을 표현할 수 있습니다.
-    # 놀람: 푹신한 하늘색 배경과 큰 눈, 입을 벌리고 놀라는 표정으로 캐릭터를 표현할 수 있습니다.
-    # 사랑: 분홍색 배경과 큰 눈, 미소짓는 입으로 캐릭터를 표현할 수 있습니다.
-    # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
-    # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
-    base_positive_prompts = "(pixar style:1.0), 8k, High Detail, 3D, (one girl:2.0),(one person:2.0), simple hair, no hair band, (girl:1.0)"
-    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair, people"
-    prompts = [
-        # ("(single color background:2.0),(Wide smile:2.0), (smile with tooth:1.0), (feminine clothes:2.0), (long straight hair:2.0),(untied hair:2.0),(black hair:2.0), (feminine hair:2.0)", "(bad quility:2.0)"),
-        ("(single color background:1.5),(pursed Lips:2.0),(sad lips:2.0),(the corners of one's mouth dropping:2.0), (dress:2.0),(girl cloth:2.0), (long straight hair:1.0),(untied hair:1.0),(black hair:1.0), (feminine hair:1.0)", "(bad quility:1.0)"),
-        
-    ]
-
-    results = []
-
-    for prompt, negative_prompt in prompts:
-        inputs = {
-            'prompt': prompt + ", " + base_positive_prompts,
-            'negative_prompt': negative_prompt + ", " + base_negative_prompts,
-            'image': io.BytesIO(image.file.read()),
-            'mask': open("assets/clonex_mask.png", "rb"),
-            'invert_mask': False,
-            'num_outputs': 1,
-            'num_inference_steps': 60,
-            'guidance_scale': 9,
-        }
-
-        outputs = version.predict(**inputs)
-        print(outputs)
-        if outputs:
-            # os.makedirs("outputs", exist_ok=True)
-
-            # # Get the latest file number in the output directory
-            # existing_files = os.listdir('outputs')
-            # latest_file_num = max([0] + [int(f.split('_')[1].split('.')[0]) for f in existing_files if f.startswith(project_name)])
-            # next_file_num = latest_file_num + 1
-
-            # # Save the output image to a file in the output directory
-            # output_path = f'outputs/{project_name}_{next_file_num}.png'
-            # response = requests.get(outputs[0])
-            # with open(output_path, 'wb') as f:
-            #     f.write(response.content)
-
-            # Return the output image as a response
-            results.append(outputs[0])
-            results.append(outputs[0])
-            results.append(outputs[0])
-        
-    return results
 
 # x 초를 key로 받아서 key 초 만큼 기다렸다가 응답해줌
 @app.post("/timelock")
