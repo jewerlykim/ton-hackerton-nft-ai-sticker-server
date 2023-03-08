@@ -203,8 +203,8 @@ async def batch_predict(
         #     f.write(response.content)
 
         # Return the output image as a response
-        # results.extend(outputs)
-        results.append(outputs)
+        results.extend(outputs)
+        # results.append(outputs)
         
     return results
 
