@@ -189,22 +189,22 @@ async def batch_predict(
     outputs = version.predict(**inputs)
     print(outputs)
     if outputs:
-        os.makedirs("outputs", exist_ok=True)
+        # os.makedirs("outputs", exist_ok=True)
 
-        # Get the latest file number in the output directory
-        existing_files = os.listdir('outputs')
-        latest_file_num = max([0] + [int(f.split('_')[1].split('.')[0]) for f in existing_files if f.startswith(project_name)])
-        next_file_num = latest_file_num + 1
+        # # Get the latest file number in the output directory
+        # existing_files = os.listdir('outputs')
+        # latest_file_num = max([0] + [int(f.split('_')[1].split('.')[0]) for f in existing_files if f.startswith(project_name)])
+        # next_file_num = latest_file_num + 1
 
-        # Save the output image to a file in the output directory
-        output_path = f'outputs/{project_name}_{next_file_num}.png'
-        response = requests.get(outputs[0])
-        with open(output_path, 'wb') as f:
-            f.write(response.content)
+        # # Save the output image to a file in the output directory
+        # output_path = f'outputs/{project_name}_{next_file_num}.png'
+        # response = requests.get(outputs[0])
+        # with open(output_path, 'wb') as f:
+        #     f.write(response.content)
 
         # Return the output image as a response
-        results.extend(outputs)
-        # results.append(outputs)
+        # results.extend(outputs)
+        results.append(outputs)
         
     return results
 
