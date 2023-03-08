@@ -20,6 +20,9 @@ app = FastAPI()
 model = replicate.models.get("stability-ai/stable-diffusion-inpainting")
 version = model.versions.get("c28b92a7ecd66eee4aefcd8a94eb9e7f6c3805d5f06038165407fb5cb355ba67")
 
+# mask를 미리 읽는다.
+mask = open("assets/clonex_mask.png", "rb")
+
 
 @app.get("/")
 async def root():
@@ -155,7 +158,7 @@ async def batch_predict(
     # 축하: 파란색 배경과 큰 눈, 손에 선물 상자를 들고 있는 표정으로 캐릭터를 표현할 수 있습니다.
     # 신나는: 오렌지색 배경과 광대한 눈, 미소 짓고 손을 흔드는 표정으로 캐릭터를 표현할 수 있습니다.
     base_positive_prompts = "(body:2.0), (pixar style:1.0), 8k, High Detail, 3D, (1girl:2.0),(1person:2.0), simple hair, no hair band, (girl:1.0)"
-    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair, people"
+    base_negative_prompts = "disfigured, bad art, extra fingers, mutated hands, blurry, no arms, bad anatomy, bad hair, arms, Accessories, (hair band:1.0), hat, hoodie, cap, glowing hair, people"
 
     results = []
     # exception
@@ -171,6 +174,8 @@ async def batch_predict(
     print("prompt: ", prompt)
     print("negative_prompt: ", negative_prompt_input)
 
+    global mask
+
 
 
     # for prompt, negative_prompt in prompts:
@@ -178,7 +183,7 @@ async def batch_predict(
         'prompt': prompt,
         'negative_prompt': negative_prompt_input,
         'image': io.BytesIO(image.file.read()),
-        'mask': open("assets/clonex_mask.png", "rb"),
+        'mask': mask,
         'invert_mask': False,
         'num_outputs': 1,
         'num_inference_steps': 60,
